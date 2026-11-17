@@ -1,7 +1,7 @@
 {
-  "name": "Radio CERO FM 97.1",
+  "name": "CERO 97.1 FM",
   "short_name": "CERO 97.1",
-  "description": "Radio CERO FM 97.1 en vivo - Villa Carlos Paz",
+  "description": "CERO 97.1 FM en vivo - Villa Carlos Paz",
   "lang": "es-AR",
   "start_url": "./",
   "scope": "./",
