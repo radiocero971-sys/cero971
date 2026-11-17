@@ -17,104 +17,77 @@ body{background:#000;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",R
 .bg div{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;opacity:0;transition:opacity 1.8s ease}
 .bg div.on{opacity:1;animation:kb 16s ease-out forwards}
 @keyframes kb{from{transform:scale(1.04)}to{transform:scale(1.14)}}
-.shade{position:fixed;inset:0;z-index:0;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.4) 40%,rgba(0,0,0,.85))}
-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.shade{position:fixed;inset:0;z-index:0;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.3) 45%,rgba(0,0,0,.8))}
 .center{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 24px}
-.logo{width:min(34vw,128px);border-radius:26px;box-shadow:0 8px 28px rgba(0,0,0,.65)}
-h1{margin:12px 0 0;font-size:30px;text-shadow:0 2px 12px #000}h1 span{color:var(--accent)}
-.live{margin-top:8px;display:inline-flex;gap:8px;align-items:center;font-size:13px;letter-spacing:.12em;color:var(--muted)}
-.dot{width:9px;height:9px;border-radius:50%;background:#666}
-.on .dot{background:var(--accent);animation:p 1.2s infinite}.live.on{color:#fff}
-@keyframes p{50%{opacity:.3}}
-.play{margin:24px 0 18px;width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);background:rgba(0,0,0,.55);color:var(--accent);cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px)}
+.logo{width:min(44vw,170px);border-radius:30px;box-shadow:0 8px 28px rgba(0,0,0,.65)}
+h1{margin:14px 0 0;font-size:32px;text-shadow:0 2px 12px #000}h1 span{color:var(--accent)}
+.site{color:var(--accent);font-size:14px;margin-top:6px;text-decoration:none}
+.soc{display:flex;justify-content:center;gap:26px;margin-top:26px}
+.soc a{display:block;width:34px;height:34px;opacity:.9;transition:transform .15s,opacity .15s}
+.soc a:active,.soc a:hover{opacity:1;transform:scale(1.15)}
+.soc img{width:100%;height:100%;object-fit:contain;display:block}
+.dock{position:relative;z-index:3;display:flex;align-items:center;gap:14px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.88);border-top:2px solid var(--accent);backdrop-filter:blur(8px);text-align:left}
+.play{flex:none;width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:grid;place-items:center}
 .play:active{background:var(--accent);color:#000}
-.play svg{width:40px;height:40px;fill:currentColor}
-input[type=range]{width:min(70vw,260px);accent-color:#6CC4EA}
-.msg{margin-top:12px;font-size:13px;color:var(--muted);min-height:18px}
-.site{color:var(--accent);font-size:13px;margin-top:8px;text-decoration:none}
-footer{position:relative;z-index:2;display:flex;justify-content:center;gap:26px;padding:14px 0 calc(18px + env(safe-area-inset-bottom,0px))}
-footer a{display:block;width:32px;height:32px;opacity:.9;transition:transform .15s,opacity .15s}
-footer a:active,footer a:hover{opacity:1;transform:scale(1.15)}
-footer img{width:100%;height:100%;object-fit:contain;display:block}
+.play svg{width:26px;height:26px;fill:currentColor}
+.info{flex:1;min-width:0}
+.info b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.info b span{color:var(--accent)}
+.live{display:flex;gap:7px;align-items:center;font-size:11px;letter-spacing:.12em;color:var(--muted);margin-top:3px}
+.dot{width:8px;height:8px;border-radius:50%;background:#666}
+.live.on{color:#fff}.live.on .dot{background:var(--accent);animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.3}}
+.vol{flex:none;width:min(28vw,120px);accent-color:#6CC4EA}
+.msg{font-size:11px;color:var(--muted);margin-top:2px}
 @media (prefers-reduced-motion:reduce){.bg div.on{animation:none}}
-@media (max-height:620px){.logo{width:84px}.play{margin:14px 0 12px;width:76px;height:76px}h1{font-size:24px}}
+@media (max-height:600px){.logo{width:96px}h1{font-size:24px}.soc{margin-top:14px}}
 </style>
 </head>
 <body>
 <div class="bg" id="bg"></div>
 <div class="shade"></div>
-<canvas id="cv"></canvas>
 <div class="center">
-<img class="logo" src="img/logo.png" alt="Cero">
+<img class="logo" src="logo.png" alt="Cero">
 <h1>97.1 <span>FM</span></h1>
-<div class="live" id="live"><span class="dot"></span>EN VIVO · VILLA CARLOS PAZ</div>
-<button class="play" id="btn" aria-label="Reproducir"><svg id="ico" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-<input type="range" id="vol" min="0" max="1" step="0.05" value="0.8" aria-label="Volumen">
-<div class="msg" id="msg"></div>
 <a class="site" href="https://www.cero.net.ar" target="_blank" rel="noopener">www.cero.net.ar</a>
+<div class="soc" id="soc"></div>
 </div>
-<footer id="soc"></footer>
+<div class="dock">
+<button class="play" id="btn" aria-label="Reproducir"><svg id="ico" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+<div class="info"><b>Radio CERO <span>97.1 FM</span></b><div class="live" id="live"><span class="dot"></span><span id="st">EN VIVO · VILLA CARLOS PAZ</span></div></div>
+<input class="vol" type="range" id="vol" min="0" max="1" step="0.05" value="0.8" aria-label="Volumen">
+</div>
 <script>
 /* ====== CONFIGURACIÓN: completá los links de las redes de CERO ====== */
 var STREAM="https://radio01.ferozo.com/proxy/ra01001235?mp=/stream";
 var SOCIAL=[
- {n:"Instagram",i:"icons/instagram.png",u:"https://www.instagram.com/"},
- {n:"TikTok",i:"icons/tiktok.png",u:"https://www.tiktok.com/"},
- {n:"WhatsApp",i:"icons/whatsapp.png",u:"https://wa.me/"},
- {n:"YouTube",i:"icons/youtube.png",u:"https://youtu.be/DNM6dHbGJkU"}
+ {n:"Instagram",i:"icon-instagram.png",u:"https://www.instagram.com/"},
+ {n:"TikTok",i:"icon-tiktok.png",u:"https://www.tiktok.com/"},
+ {n:"WhatsApp",i:"icon-whatsapp.png",u:"https://wa.me/"},
+ {n:"YouTube",i:"icon-youtube.png",u:"https://youtu.be/DNM6dHbGJkU"}
 ];
 /* ==================================================================== */
 var $=function(i){return document.getElementById(i)};
 $("soc").innerHTML=SOCIAL.map(function(s){return '<a href="'+s.u+'" target="_blank" rel="noopener" aria-label="'+s.n+'"><img src="'+s.i+'" alt="'+s.n+'"></a>'}).join("");
 /* Fondo de fotos */
-var PH=[["img/bg1.jpg","35% center"],["img/bg2.jpg","30% center"],["img/bg3.jpg","50% center"]],bgE=$("bg"),cur=0;
+var PH=[["bg1.jpg","35% center"],["bg2.jpg","30% center"],["bg3.jpg","50% center"]],bgE=$("bg"),cur=0;
 PH.forEach(function(p){var d=document.createElement("div");d.style.backgroundImage="url("+p[0]+")";d.style.backgroundPosition=p[1];bgE.appendChild(d)});
 var ds=bgE.children;ds[0].className="on";
 setInterval(function(){ds[cur].className="";cur=(cur+1)%ds.length;ds[cur].className="on"},8000);
 /* Reproductor */
-var btn=$("btn"),ico=$("ico"),msg=$("msg"),live=$("live"),vol=$("vol");
-var a=null,ctx=null,an=null,fd=null,real=false,playing=false,busy=false;
+var btn=$("btn"),ico=$("ico"),live=$("live"),st=$("st"),vol=$("vol"),IDLE="EN VIVO · VILLA CARLOS PAZ";
+var a=null,playing=false,busy=false;
 var PL="M8 5v14l11-7z",PA="M6 5h4v14H6zM14 5h4v14h-4z";
 function ui(p){playing=p;ico.innerHTML='<path d="'+(p?PA:PL)+'"/>';live.classList.toggle("on",p);btn.setAttribute("aria-label",p?"Pausar":"Reproducir");if("mediaSession"in navigator)navigator.mediaSession.playbackState=p?"playing":"paused"}
-function mk(cors){var x=new Audio();if(cors)x.crossOrigin="anonymous";x.preload="none";x.volume=+vol.value;x.src=STREAM;return x}
-function stop(){if(a){a.pause();a.removeAttribute("src");a.load();a=null}
- if(ctx){try{ctx.close()}catch(e){}ctx=null;an=null}real=false;ui(false)}
+function stop(){if(a){a.pause();a.removeAttribute("src");a.load();a=null}st.textContent=IDLE;ui(false)}
 async function start(){
- busy=true;msg.textContent="Conectando…";
- try{
-  a=mk(true);await a.play();
-  try{ctx=new(window.AudioContext||window.webkitAudioContext)();var s=ctx.createMediaElementSource(a);an=ctx.createAnalyser();an.fftSize=128;an.smoothingTimeConstant=.8;s.connect(an);an.connect(ctx.destination);fd=new Uint8Array(an.frequencyBinCount);real=true}catch(e){real=false}
- }catch(e1){
-  try{if(a){a.pause()}a=mk(false);await a.play();real=false}
-  catch(e2){a=null;msg.textContent="No se pudo reproducir. Probá de nuevo.";busy=false;ui(false);return}
- }
- msg.textContent="";busy=false;ui(true);
+ busy=true;st.textContent="CONECTANDO…";
+ try{a=new Audio();a.preload="none";a.volume=+vol.value;a.src=STREAM;await a.play()}
+ catch(e){a=null;busy=false;st.textContent="NO SE PUDO REPRODUCIR";ui(false);return}
+ busy=false;st.textContent=IDLE;ui(true);
  if("mediaSession"in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Radio CERO FM 97.1",artist:"En vivo",artwork:[{src:"icon-512.png",sizes:"512x512",type:"image/png"}]});navigator.mediaSession.setActionHandler("pause",stop);navigator.mediaSession.setActionHandler("play",start)}
 }
 btn.onclick=function(){if(busy)return;playing?stop():start()};
 vol.oninput=function(){if(a)a.volume=+vol.value};
-/* Ondas + vúmetro */
-var cv=$("cv"),g=cv.getContext("2d"),W=0,H=0,N=32,lv=new Array(N).fill(0),pk=new Array(N).fill(0),amp=0,t=0;
-function rs(){var d=window.devicePixelRatio||1;W=cv.width=innerWidth*d;H=cv.height=innerHeight*d;g.setTransform(d,0,0,d,0,0);W/=d;H/=d}
-addEventListener("resize",rs);rs();
-function frame(){
- t+=.016;var tgt=new Array(N),sum=0,i;
- if(playing&&real&&an){an.getByteFrequencyData(fd);var st=Math.floor(fd.length*.75/N)||1;for(i=0;i<N;i++){var v=0;for(var k=0;k<st;k++)v+=fd[i*st+k]||0;tgt[i]=v/st/255}}
- else if(playing){for(i=0;i<N;i++)tgt[i]=.25+.6*Math.abs(Math.sin(t*1.7+i*.6)*Math.sin(t*.9+i*.23))*(1-i/N*.5)}
- else for(i=0;i<N;i++)tgt[i]=.03;
- for(i=0;i<N;i++){lv[i]+=(tgt[i]-lv[i])*.25;pk[i]=Math.max(lv[i],pk[i]-.006);sum+=lv[i]}
- amp+=((sum/N)-amp)*.1;
- g.clearRect(0,0,W,H);
- var L=[["rgba(108,196,234,.7)",1.2,1.6,0],["rgba(255,255,255,.4)",.8,1.1,1.7],["rgba(108,196,234,.4)",1.7,2.2,3.1]];
- for(var j=0;j<3;j++){var c=L[j];g.beginPath();g.strokeStyle=c[0];g.lineWidth=2.5;
-  for(var x=0;x<=W;x+=6){var y=H*.5+Math.sin(x*.012*c[1]+t*c[2]+c[3])*(H*.04+amp*H*.26)*Math.sin(x/W*Math.PI)+Math.sin(x*.005+t*.6+j)*H*.02;x?g.lineTo(x,y):g.moveTo(x,y)}
-  g.stroke()}
- var bw=W/N,bh=H*.26;
- for(i=0;i<N;i++){var h=Math.max(3,lv[i]*bh),x0=i*bw+bw*.18,w=bw*.64;
-  g.fillStyle="rgba(108,196,234,.7)";g.fillRect(x0,H-h-60,w,h);
-  g.fillStyle="#fff";g.fillRect(x0,H-pk[i]*bh-65,w,3)}
- requestAnimationFrame(frame)}
-frame();
 if("serviceWorker"in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
 </script>
 </body>
