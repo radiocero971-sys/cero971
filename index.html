@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Radio CERO FM 97.1</title>
+<style>
+:root{--bg:#000;--fg:#fff;--accent:#6CC4EA;--muted:#9aa3a8;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:env(safe-area-inset-top,0px) 24px env(safe-area-inset-bottom,0px)}
+canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.logo{width:min(62vw,240px)}
+h1{margin:6px 0 0;font-size:28px}h1 span{color:var(--accent)}
+.live{margin-top:10px;display:inline-flex;gap:8px;align-items:center;font-size:13px;letter-spacing:.12em;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:#555}
+.on .dot{background:var(--accent);animation:p 1.2s infinite}.on{color:var(--fg)}
+@keyframes p{50%{opacity:.3}}
+.play{margin:26px 0 18px;width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);background:rgba(0,0,0,.55);color:var(--accent);cursor:pointer;display:grid;place-items:center}
+.play:active{background:var(--accent);color:#000}
+.play svg{width:40px;height:40px;fill:currentColor}
+input[type=range]{width:min(70vw,260px);accent-color:#6CC4EA}
+.msg{margin-top:14px;font-size:13px;color:var(--muted);min-height:18px}
+a{color:var(--accent);font-size:13px;margin-top:10px;text-decoration:none}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<main>
+<svg class="logo" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cero">
+<rect x="8" y="8" width="284" height="204" rx="60" fill="none" stroke="#fff" stroke-width="22"/>
+<line x1="60" y1="10" x2="250" y2="205" stroke="#000" stroke-width="22"/>
+<rect x="45" y="45" width="210" height="130" rx="30" fill="#000"/>
+<text x="150" y="128" text-anchor="middle" font-size="52" font-weight="700" font-family="system-ui,sans-serif" letter-spacing="3"><tspan fill="#6CC4EA">CER</tspan><tspan fill="#fff">O</tspan></text>
+</svg>
+<h1>97.1 <span>FM</span></h1>
+<div class="live" id="live"><span class="dot"></span>EN VIVO · VILLA CARLOS PAZ</div>
+<button class="play" id="btn" aria-label="Reproducir"><svg id="ico" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+<input type="range" id="vol" min="0" max="1" step="0.05" value="0.8" aria-label="Volumen">
+<div class="msg" id="msg"></div>
+<a href="https://www.cero.net.ar" target="_blank" rel="noopener">www.cero.net.ar</a>
+</main>
+<script>
+var STREAM="https://radio01.ferozo.com/proxy/ra01001235?mp=/stream";
+var $=function(i){return document.getElementById(i)};
+var btn=$("btn"),ico=$("ico"),msg=$("msg"),live=$("live"),vol=$("vol");
+var a=null,ctx=null,an=null,fd=null,real=false,playing=false,busy=false;
+var PL="M8 5v14l11-7z",PA="M6 5h4v14H6zM14 5h4v14h-4z";
+function ui(p){playing=p;ico.innerHTML='<path d="'+(p?PA:PL)+'"/>';live.classList.toggle("on",p);btn.setAttribute("aria-label",p?"Pausar":"Reproducir");if("mediaSession"in navigator)navigator.mediaSession.playbackState=p?"playing":"paused"}
+function mk(cors){var x=new Audio();if(cors)x.crossOrigin="anonymous";x.preload="none";x.volume=+vol.value;x.src=STREAM;return x}
+function stop(){if(a){a.pause();a.removeAttribute("src");a.load();a=null}
+ if(ctx){try{ctx.close()}catch(e){}ctx=null;an=null}real=false;ui(false)}
+async function start(){
+ busy=true;msg.textContent="Conectando…";
+ try{
+  a=mk(true);await a.play();
+  try{ctx=new(window.AudioContext||window.webkitAudioContext)();var s=ctx.createMediaElementSource(a);an=ctx.createAnalyser();an.fftSize=128;an.smoothingTimeConstant=.8;s.connect(an);an.connect(ctx.destination);fd=new Uint8Array(an.frequencyBinCount);real=true}catch(e){real=false}
+ }catch(e1){
+  try{if(a){a.pause()}a=mk(false);await a.play();real=false}
+  catch(e2){a=null;msg.textContent="No se pudo reproducir. Probá de nuevo.";busy=false;ui(false);return}
+ }
+ msg.textContent="";busy=false;ui(true);
+ if("mediaSession"in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Radio CERO FM 97.1",artist:"En vivo",artwork:[{src:"icon-512.png",sizes:"512x512",type:"image/png"}]});navigator.mediaSession.setActionHandler("pause",stop);navigator.mediaSession.setActionHandler("play",start)}
+}
+btn.onclick=function(){if(busy)return;playing?stop():start()};
+vol.oninput=function(){if(a)a.volume=+vol.value};
+/* Fondo animado: ondas + vúmetro */
+var cv=$("cv"),g=cv.getContext("2d"),W=0,H=0,N=32,lv=new Array(N).fill(0),pk=new Array(N).fill(0),amp=0,t=0;
+function rs(){var d=window.devicePixelRatio||1;W=cv.width=innerWidth*d;H=cv.height=innerHeight*d;g.setTransform(d,0,0,d,0,0);W/=d;H/=d}
+addEventListener("resize",rs);rs();
+function frame(){
+ t+=.016;var tgt=new Array(N),sum=0,i;
+ if(playing&&real&&an){an.getByteFrequencyData(fd);var st=Math.floor(fd.length*.75/N)||1;for(i=0;i<N;i++){var v=0;for(var k=0;k<st;k++)v+=fd[i*st+k]||0;tgt[i]=v/st/255}}
+ else if(playing){for(i=0;i<N;i++)tgt[i]=.25+.6*Math.abs(Math.sin(t*1.7+i*.6)*Math.sin(t*.9+i*.23))*(1-i/N*.5)}
+ else for(i=0;i<N;i++)tgt[i]=.03;
+ for(i=0;i<N;i++){lv[i]+=(tgt[i]-lv[i])*.25;pk[i]=Math.max(lv[i],pk[i]-.006);sum+=lv[i]}
+ amp+=((sum/N)-amp)*.1;
+ g.clearRect(0,0,W,H);
+ var L=[["rgba(108,196,234,.55)",1.2,1.6,.0],["rgba(255,255,255,.35)",.8,1.1,1.7],["rgba(108,196,234,.3)",1.7,2.2,3.1]];
+ for(var j=0;j<3;j++){var c=L[j];g.beginPath();g.strokeStyle=c[0];g.lineWidth=2.5;
+  for(var x=0;x<=W;x+=6){var y=H*.5+Math.sin(x*.012*c[1]+t*c[2]+c[3])*(H*.04+amp*H*.28)*Math.sin(x/W*Math.PI)+Math.sin(x*.005+t*.6+j)*H*.02;x?g.lineTo(x,y):g.moveTo(x,y)}
+  g.stroke()}
+ var bw=W/N,bh=H*.32;
+ for(i=0;i<N;i++){var h=Math.max(3,lv[i]*bh),x0=i*bw+bw*.18,w=bw*.64;
+  g.fillStyle="rgba(108,196,234,.75)";g.fillRect(x0,H-h,w,h);
+  g.fillStyle="#fff";g.fillRect(x0,H-pk[i]*bh-5,w,3)}
+ requestAnimationFrame(frame)}
+frame();
+if("serviceWorker"in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+</script>
+</body>
+</html>
